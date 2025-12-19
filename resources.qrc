@@ -1,0 +1,7 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+<qresource prefix="/translations">
+    <file alias="gemspace_ru.qm">gemspace_ru.qm</file>
+    <file alias="gemspace_en.qm">gemspace_en.qm</file>
+</qresource>
+</RCC>

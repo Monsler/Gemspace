@@ -9,10 +9,12 @@ namespace Gemspace {
         public:
         Requester(QObject *parent = nullptr);
         void sendRequest(const std::string &url);
+        QSslSocket *currentSocket;
 
         signals:
             void requestFinished(const QByteArray& data);
 
         private:
+
     };
 }

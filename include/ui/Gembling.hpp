@@ -15,6 +15,7 @@ namespace Gemspace {
         ~Gembling();
         void parseSite(const QString& site);
         void clearObjects();
+        void drawImage(const QByteArray& imageData);
 
         std::string currentUrl;
 

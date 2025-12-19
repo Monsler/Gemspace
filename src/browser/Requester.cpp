@@ -20,11 +20,14 @@ namespace Gemspace {
                     "=> gemini://gemini.lehmann.cx/ Gemini protocol useful stuff\n"
                     "=> gemini://kennedy.gemi.dev/ Kennedy Search Engine\n"
                     "=> gemini://kennedy.gemi.dev/docs/search.gmi Kennedy Search Engine Documentation\n"
-                    "## Fun sites\n"
-                    "=> gemini://xandra.cities.yesterweb.org/ Strange cafe\n"
-                    "## Credits\n\n"
+                    "=> gemini://gemi.dev/cgi-bin/wp.cgi/view?Wiki Gemipedia\n"
+                    "## Time killing\n"
+                    "=> gemini://xandra.cities.yesterweb.org/ Alexandra's cafe\n"
+                    "=> gemini://cities.yesterweb.org/ Yesterweb\n"
+                    "=> gemini://gemi.dev/cgi-bin/waffle.cgi/ Waffle\n"
+                    "## Credits\n"
                     "```\n"
-                    "This browser is being developed by Monsler on GitHub: https://github.com/Monsler/Gemspace!!!\n"
+                    "This project is being developed by Monsler\non GitHub: https://github.com/Monsler/Gemspace!!!\n"
                     "```";
             emit requestFinished(mockData);
             return;
@@ -39,18 +42,23 @@ namespace Gemspace {
         QUrl url(urlStr);
 
         QSslSocket* socket = new QSslSocket(this);
+        this->currentSocket = socket;
         socket->setPeerVerifyMode(QSslSocket::VerifyNone);
 
         connect(socket, &QSslSocket::readyRead, [this, socket]() {
-            QByteArray response = socket->readAll();
-            qDebug() << "Request finished with data:\n" << response;
-            emit requestFinished(response);
+
+            //qDebug() << "Request finished with data:\n" << response;
+
         });
 
         connect(socket, &QSslSocket::sslErrors, this, [this](const QList<QSslError> &errors) {
             static_cast<QSslSocket*>(sender())->ignoreSslErrors();
         });
-        connect(socket, &QSslSocket::disconnected, socket, &QObject::deleteLater);
+        connect(socket, &QSslSocket::disconnected, socket, [this, socket]() {
+            QByteArray response = socket->readAll();
+            socket->deleteLater();
+            emit requestFinished(response);
+        });
 
         connect(socket, &QSslSocket::encrypted, [socket, url]() {
             socket->write(url.toString().toUtf8() + "\r\n");
@@ -65,6 +73,5 @@ namespace Gemspace {
         });
 
         socket->connectToHostEncrypted(url.host(), 1965);
-        qDebug() << "Connecting to " << url.host() << ":" << 1965;
     }
 }

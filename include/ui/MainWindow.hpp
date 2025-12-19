@@ -22,6 +22,8 @@ namespace Gemspace {
         ~MainWindow();
         QLineEdit* searchInput;
         std::string currentUrl;
+        void addToBackwardStack(const QString& url);
+        void addToForwardStack(const QString& url);
 
     public slots:
         void onUrlEntered();
@@ -30,6 +32,7 @@ namespace Gemspace {
         void onBackClicked();
         void onForwardClicked();
         void updateNavigationButtons();
+
 
 
     private:

@@ -26,11 +26,11 @@ namespace Gemspace {
         menuBar->addMenu(fileMenu);
 
         layout = new QVBoxLayout(centralWidget);
-        layout->setContentsMargins(9, 9, 9, 9);
+        layout->setContentsMargins(0, 0, 0, 0);
         centralWidget->setLayout(layout);
 
         searchPanel = new QHBoxLayout(centralWidget);
-        searchPanel->setContentsMargins(0, 0, 0, 0);
+        searchPanel->setContentsMargins(9, 9, 9, 3);
         layout->addLayout(searchPanel);
 
         searchInput = new QLineEdit(centralWidget);
@@ -60,6 +60,8 @@ namespace Gemspace {
         scrollArea = new QScrollArea(centralWidget);
         scrollArea->setWidget(gembling);
         scrollArea->setWidgetResizable(true);
+        scrollArea->setFrameShape(QFrame::StyledPanel);
+        scrollArea->setFrameShadow(QFrame::Sunken);
         layout->addWidget(scrollArea);
 
         connect(searchInput, &QLineEdit::returnPressed, this, &MainWindow::onUrlEntered);
@@ -75,10 +77,11 @@ namespace Gemspace {
     }
     void MainWindow::onBackClicked() {
         if (!backwardStack.empty()) {
+
             QString url = backwardStack.back();
             backwardStack.pop_back();
 
-            forwardStack.push_back(this->searchInput->text());
+            addToForwardStack(this->searchInput->text());
 
             isNavigating = true;
             searchInput->setText(url);
@@ -91,7 +94,7 @@ namespace Gemspace {
         if (!forwardStack.empty()) {
             QString url = forwardStack.back();
             forwardStack.pop_back();
-            backwardStack.push_back(this->searchInput->text());
+            addToBackwardStack(this->searchInput->text());
             isNavigating = true;
             searchInput->setText(url);
             updateNavigationButtons();
@@ -103,19 +106,43 @@ namespace Gemspace {
         onUrlEntered();
     }
 
+    void MainWindow::addToBackwardStack(const QString& url) {
+        backwardStack.push_back(url);
+    }
+
+    void MainWindow::addToForwardStack(const QString& url) {
+        forwardStack.push_back(url);
+    }
+
     void MainWindow::updateNavigationButtons() {
         backButton->setEnabled(!backwardStack.empty());
         forwardButton->setEnabled(!forwardStack.empty());
     }
 
     void MainWindow::onConnected(const QByteArray& data) {
-
+        updateNavigationButtons();
         QString content = QString::fromUtf8(data);
+        QString contentSample = QString::fromUtf8(data.left(100));
         qDebug() << "Received data: " << content;
 
         QUrl currentUrl(searchInput->text());
 
-        if (content.startsWith("2")) {
+        if (content.startsWith("20")) {
+            if (contentSample.contains("image/")) {
+               //qDebug() << "Received image data";
+                int headerEnd = content.indexOf("\r\n");
+                if (headerEnd != -1) {
+                    QByteArray imageData = data.mid(headerEnd + 2);
+
+                    if (!imageData.isEmpty()) {
+                        gembling->drawImage(imageData);
+                    }
+                }
+                return;
+            }
+
+            //qDebug() << "Received data: " << content;
+            refreshButton->setEnabled(true);
             int firstLineEnd = content.indexOf("\n");
             isNavigating = false;
             if (firstLineEnd != -1 && content.length() > firstLineEnd + 1) {
@@ -123,20 +150,21 @@ namespace Gemspace {
             } else {
                 qDebug() << "Header received, waiting for body...";
             }
-        } else if (content.startsWith("3")) {
-            auto nextUrl = content.mid(3).trimmed();
-            QUrl newUrl;
-            if (nextUrl.startsWith("gemini://")) {
-                newUrl = nextUrl;
-            } else {
-                QString currentPath = currentUrl.path();
-                int lastSlash = currentPath.lastIndexOf('/');
-                newUrl.setPath(currentPath.left(lastSlash + 1) + nextUrl);
-            }
+        } else if (content.startsWith("30") || content.startsWith("31")) {
+            QString nextUrlStr = content.mid(2).trimmed();
+            isNavigating = true;
+
+            QUrl baseUrl(searchInput->text());
+            QUrl redirectUrl(nextUrlStr);
+
+            QUrl finalUrl = baseUrl.resolved(redirectUrl);
+
+            if (finalUrl.scheme().isEmpty()) finalUrl.setScheme("gemini");
+
             searchInput->clearFocus();
-            searchInput->setText(newUrl.toString());
+            searchInput->setText(finalUrl.toString());
             onUrlEntered();
-        } else if (content.startsWith("10")) {
+        } else if (content.startsWith("10") || content.startsWith("11")) {
             QString currentUrl = this->searchInput->text();
             QString inputText = content.mid(3).trimmed();
 
@@ -150,6 +178,8 @@ namespace Gemspace {
 
                         this->searchInput->setText(url.toString());
                         this->onUrlEntered();
+                    } else {
+                        this->onBackClicked();
                     }
                 });
         } else {
@@ -158,10 +188,11 @@ namespace Gemspace {
     }
 
     void MainWindow::onUrlEntered() {
+        refreshButton->setEnabled(false);
         QString newUrl = searchInput->text();
         QString oldUrl = QString::fromStdString(this->currentUrl);
-        if (!isNavigating && !oldUrl.isEmpty() && newUrl != oldUrl) {
-            backwardStack.push_back(oldUrl);
+        if (!isNavigating && !oldUrl.isEmpty() && newUrl != oldUrl && std::find(backwardStack.begin(), backwardStack.end(), oldUrl) == backwardStack.end()) {
+            addToBackwardStack(oldUrl);
             forwardStack.clear();
         }
 

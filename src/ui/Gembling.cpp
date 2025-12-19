@@ -24,22 +24,27 @@ namespace Gemspace {
         setLayout(layout);
     }
 
+    void Gembling::drawImage(const QByteArray& imageData) {
+        if (!imageData.isEmpty()) {
+            QLabel* imageLabel = new QLabel(this);
+            QPixmap pixmap;
+            pixmap.loadFromData(imageData);
+            imageLabel->setPixmap(pixmap.scaledToWidth(400, Qt::SmoothTransformation));
+            layout->addWidget(imageLabel);
+        }
+    }
+
     void Gembling::parseSite(const QString& site) {
         this->setUpdatesEnabled(false);
         layout->setEnabled(false);
         layout->setSpacing(0);
         bool isPre = false;
-        bool isImage = false;
 
         currentUrl = site.toStdString();
 
         QStringList lines = site.split('\n');
 
-        if (lines.first().contains("image")) {
-            return;
-        } else {
-            qDebug() << lines.first();
-        }
+        QString firstLine = lines.first().trimmed();
 
         for (const QString& line : lines) {
 
@@ -174,6 +179,7 @@ namespace Gemspace {
                 trimmedLine = "  •  " + trimmedLine.mid(1).trimmed();
                 auto bullet = new QLabel(trimmedLine, this);
                 bullet->setStyleSheet("margin-left: 10px;");
+                bullet->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
                 bullet->setWordWrap(true);
                 objects.push_back(bullet);
                 QFont font = bullet->font();
@@ -193,21 +199,12 @@ namespace Gemspace {
                 QFont font = text->font();
                 font.setPointSize(11);
                 text->setFont(font);
+                text->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
                 text->setWordWrap(true);
                 objects.push_back(text);
-                layout->addSpacing(5);
                 layout->addWidget(text);
-                layout->addSpacing(5);
+                //layout->addSpacing(5);
             }
-        } // Конец цикла for
-
-        if (isImage) {
-            /*auto text = new QLabel(site, this);
-            text->setWordWrap(true);
-            objects.push_back(text);
-            layout->addSpacing(5);
-            layout->addWidget(text);
-            layout->addSpacing(5);*/
         }
 
         layout->addStretch(1);

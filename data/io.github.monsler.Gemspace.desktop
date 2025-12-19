@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Gemspace
+GenericName=Gemspace
+Comment=Gemini network client
+Icon=io.github.monsler.Gemspace
+Keywords=web;gemini;browser
+Categories=Internet;Utility
+Terminal=false
+Exec=/app/bin/Gemspace
+StartupWMClass=gemspace

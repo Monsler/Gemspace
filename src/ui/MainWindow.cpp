@@ -27,12 +27,6 @@ namespace Gemspace {
         centralWidget = new QWidget(this);
         setCentralWidget(centralWidget);
 
-        menuBar = new QMenuBar(this);
-        setMenuBar(menuBar);
-
-        fileMenu = new QMenu(tr("&File"), menuBar);
-        menuBar->addMenu(fileMenu);
-
         layout = new QVBoxLayout(centralWidget);
         layout->setContentsMargins(0, 0, 0, 0);
         centralWidget->setLayout(layout);

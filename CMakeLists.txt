@@ -44,3 +44,19 @@ qt_add_translations(Gemspace
 
 target_include_directories(Gemspace PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(Gemspace PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Multimedia Qt6::DBus OpenSSL::SSL)
+
+install(TARGETS Gemspace
+    DESTINATION bin
+)
+
+install(FILES data/io.github.monsler.Gemspace.desktop
+    DESTINATION share/applications
+)
+
+install(FILES data/io.github.monsler.Gemspace.appdata.xml
+    DESTINATION share/appdata
+)
+
+install(FILES data/io.github.monsler.Gemspace.png
+    DESTINATION share/icons/hicolor/512x512/apps
+)

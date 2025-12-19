@@ -54,8 +54,7 @@ namespace Gemspace {
         QPushButton* refreshButton;
 
         QPushButton* menuButton;
-        QMenuBar* menuBar;
-        QMenu* fileMenu;
+
         QScrollArea* scrollArea;
         Gembling* gembling;
 

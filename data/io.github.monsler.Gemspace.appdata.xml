@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<component type="desktop-application">
+  <id>io.github.monsler.Gemspace</id>
+  <name>Gemspace</name>
+  <summary>Lightweight audio player</summary>
+
+  <description>
+    <p
+        >Gemspace is a modern browser for Gemini network. It has elegant tho simple design and fast loading times.</p>
+  </description>
+
+  <launchable type="desktop-id">io.github.monsler.Gemspace.desktop</launchable>
+
+  <url type="homepage">https://github.com/Monsler/Gemspace</url>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+
+  <provides>
+    <binary>Gemspace</binary>
+  </provides>
+
+  <developer id="io.github.monsler">
+    <name>Monsler</name>
+  </developer>
+
+  <screenshots>
+  <screenshot type="default">
+    <image type="source">https://i.postimg.cc/yN0wtWC8/image.png</image>
+    <caption>Homepage</caption>
+  </screenshot>
+  <screenshot>
+    <image type="source">https://i.postimg.cc/6QhMCZN9/image.png</image>
+    <caption>Yesterweb hosting</caption>
+  </screenshot>
+  <screenshot>
+    <image type="source">https://i.postimg.cc/xCC3HF5T/image.png</image>
+    <caption>Native input prompting</caption>
+  </screenshot>
+  <screenshot>
+    <image type="source">https://i.postimg.cc/fbb8jLWB/image.png</image>
+    <caption>Random software website</caption>
+  </screenshot>
+  </screenshots>
+
+  <releases>
+    <release version="1.0.0" date="2025-12-19">
+    <description>
+      <p>Thanks everyone for using Kalorite! This update includes:</p>
+      <ul>
+        <li>Fix of progress bar in sound downloader</li>
+        <li>Fix of sound downloader cancel button</li>
+        <li>Fix of memory leak in mixer</li>
+      </ul>
+    </description>
+    </release>
+  </releases>
+
+  <content_rating type="oars-1.1" />
+</component>

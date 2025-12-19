@@ -1,0 +1,29 @@
+{
+  "app-id": "io.github.monsler.Gemspace",
+  "runtime": "org.kde.Platform",
+  "runtime-version": "6.10",
+  "sdk": "org.kde.Sdk",
+  "command": "Gemspace",
+  "cleanup": ["/include", "/lib/pkgconfig", "/share/doc", "/share/man"],
+  "finish-args": [
+    "--share=network",
+    "--socket=fallback-x11",
+    "--socket=wayland",
+    "--talk-name=com.canonical.Unity",
+    "--device=dri"
+  ],
+  "modules": [
+    {
+      "name": "Gemspace",
+      "buildsystem": "cmake-ninja",
+      "sources": [
+        {
+          "type": "git",
+          "url": "https://github.com/Monsler/Gemspace",
+          "tag": "v1.0.0-rc1"
+        }
+      ],
+      "config-opts": ["-DCMAKE_BUILD_TYPE=Release"]
+    }
+  ]
+}

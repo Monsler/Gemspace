@@ -13,6 +13,7 @@
 #include "ui/Gembling.hpp"
 #include <QScrollArea>
 #include <vector>
+#include "PlasmaPercent.hpp"
 
 namespace Gemspace {
     class MainWindow : public QMainWindow {
@@ -24,6 +25,8 @@ namespace Gemspace {
         std::string currentUrl;
         void addToBackwardStack(const QString& url);
         void addToForwardStack(const QString& url);
+
+        PlasmaPercent* plasmaPercent;
 
     public slots:
         void onUrlEntered();
@@ -40,6 +43,7 @@ namespace Gemspace {
         std::vector<QString> backwardStack;
 
         bool isNavigating;
+
 
         QVBoxLayout* layout;
         QWidget* centralWidget;

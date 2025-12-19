@@ -1,4 +1,5 @@
 #include "ui/Gembling.hpp"
+#include <qapplication.h>
 #include <qcontainerfwd.h>
 #include <qcursor.h>
 #include <qframe.h>
@@ -29,7 +30,7 @@ namespace Gemspace {
             QLabel* imageLabel = new QLabel(this);
             QPixmap pixmap;
             pixmap.loadFromData(imageData);
-            imageLabel->setPixmap(pixmap.scaledToWidth(400, Qt::SmoothTransformation));
+            imageLabel->setPixmap(pixmap.scaledToHeight(height()-5, Qt::SmoothTransformation));
             layout->addWidget(imageLabel);
         }
     }
@@ -68,6 +69,8 @@ namespace Gemspace {
                 );
                 QFont font = code->font();
                 font.setPointSize(11);
+                code->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
                 code->setFont(font);
                 objects.push_back(code);
                 layout->addWidget(code);
@@ -89,8 +92,10 @@ namespace Gemspace {
                 trimmedLine = trimmedLine.replace("###", "").trimmed();
                 font.setBold(true);
                 font.setPointSize(13);
+
                 obj->setFont(font);
                 obj->setText(trimmedLine);
+                obj->setTextInteractionFlags(Qt::TextSelectableByMouse);
                 objects.push_back(obj);
                 layout->addWidget(obj);
             }
@@ -104,6 +109,7 @@ namespace Gemspace {
                 font.setPointSize(15);
                 obj->setText(trimmedLine);
                 obj->setFont(font);
+                obj->setTextInteractionFlags(Qt::TextSelectableByMouse);
                 objects.push_back(obj);
                 layout->addWidget(obj);
             }
@@ -116,6 +122,8 @@ namespace Gemspace {
                 font.setPointSize(17);
                 obj->setText(trimmedLine);
                 obj->setFont(font);
+                obj->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
                 objects.push_back(obj);
                 layout->addWidget(obj);
             }
@@ -165,7 +173,9 @@ namespace Gemspace {
                             this->mainWindow->searchInput->setText(finalStr);
                             this->mainWindow->onUrlEntered();
                         } else {
-                            QMessageBox::warning(this, "Error", "Gemspace only supports gemini:// URLs");
+                            QMessageBox::warning(this,
+                                QCoreApplication::translate("Gembling", "&Error"),
+                                QCoreApplication::translate("Gembling", "&GemspaceNoHttp"));
                         }
                     });
 
@@ -186,6 +196,7 @@ namespace Gemspace {
                 font.setPointSize(11);
                 bullet->setFont(font);
                 layout->addWidget(bullet);
+                bullet->setTextInteractionFlags(Qt::TextSelectableByMouse);
             }
             else if (trimmedLine.startsWith(">")) {
                 auto quote = new QLabel(trimmedLine.mid(1).trimmed(), this);
@@ -193,6 +204,7 @@ namespace Gemspace {
                 quote->setStyleSheet("margin-left: 10px; font-style: italic;");
                 objects.push_back(quote);
                 layout->addWidget(quote);
+                quote->setTextInteractionFlags(Qt::TextSelectableByMouse);
             }
             else {
                 auto text = new QLabel(trimmedLine, this);
@@ -203,7 +215,7 @@ namespace Gemspace {
                 text->setWordWrap(true);
                 objects.push_back(text);
                 layout->addWidget(text);
-                //layout->addSpacing(5);
+                text->setTextInteractionFlags(Qt::TextSelectableByMouse);
             }
         }
 

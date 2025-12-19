@@ -1,20 +1,28 @@
 #include "ui/MainWindow.hpp"
 #include <QMenuBar>
+#include <qdir.h>
 #include <qframe.h>
 #include <qlogging.h>
 #include "browser/Requester.hpp"
 #include <QInputDialog>
 #include <QTimer>
+#include <qmessagebox.h>
 #include <qnamespace.h>
+#include <qobject.h>
 #include <qobjectdefs.h>
+#include <qssl.h>
+#include <qsslcertificate.h>
+#include <QSslKey>
 
 namespace Gemspace {
     MainWindow::MainWindow(QWidget* parent)
         : QMainWindow(parent) {
         setWindowTitle("Gemspace");
-        resize(700, 500);
+        resize(1000, 700);
+
 
         requester = new Requester(this);
+        plasmaPercent = new PlasmaPercent();
 
         centralWidget = new QWidget(this);
         setCentralWidget(centralWidget);
@@ -70,7 +78,7 @@ namespace Gemspace {
         connect(backButton, &QPushButton::clicked, this, &MainWindow::onBackClicked);
         connect(forwardButton, &QPushButton::clicked, this, &MainWindow::onForwardClicked);
 
-        searchInput->setText("home");
+        searchInput->setText("gemspace://home");
 
         show();
         onUrlEntered();
@@ -123,13 +131,14 @@ namespace Gemspace {
         updateNavigationButtons();
         QString content = QString::fromUtf8(data);
         QString contentSample = QString::fromUtf8(data.left(100));
-        qDebug() << "Received data: " << content;
 
         QUrl currentUrl(searchInput->text());
 
         if (content.startsWith("20")) {
+            isNavigating = false;
+            refreshButton->setEnabled(true);
+
             if (contentSample.contains("image/")) {
-               //qDebug() << "Received image data";
                 int headerEnd = content.indexOf("\r\n");
                 if (headerEnd != -1) {
                     QByteArray imageData = data.mid(headerEnd + 2);
@@ -141,10 +150,8 @@ namespace Gemspace {
                 return;
             }
 
-            //qDebug() << "Received data: " << content;
-            refreshButton->setEnabled(true);
             int firstLineEnd = content.indexOf("\n");
-            isNavigating = false;
+
             if (firstLineEnd != -1 && content.length() > firstLineEnd + 1) {
                 gembling->parseSite(content);
             } else {
@@ -182,14 +189,39 @@ namespace Gemspace {
                         this->onBackClicked();
                     }
                 });
+        } else if (content.startsWith("60")) {
+            QUrl baseUrl(searchInput->text());
+            QFile certPath = QFile(requester->certsPath.filePath(baseUrl.host() + ".crt"));
+
+            if(!certPath.exists()) {
+                QMessageBox::StandardButton reply = QMessageBox::question(this, "Gemspace", tr("&CertCreationConfirmation"), QMessageBox::Ok | QMessageBox::No);
+                if (reply == QMessageBox::Ok) {
+                    requester->registerCert(baseUrl.host());
+                    onRefreshClicked();
+                } else {
+                    this->onBackClicked();
+                }
+            } else {
+                onRefreshClicked();
+            }
+
         } else {
+            refreshButton->setEnabled(true);
+            qDebug() << "Received data: " << data;
             gembling->parseSite(content);
         }
     }
 
     void MainWindow::onUrlEntered() {
         refreshButton->setEnabled(false);
+
         QString newUrl = searchInput->text();
+
+        if (!newUrl.startsWith("://") && !newUrl.startsWith("gemspace://") && !newUrl.startsWith("gemini://")) {
+            this->searchInput->clearFocus();
+            this->searchInput->setText("gemini://kennedy.gemi.dev/search?" + newUrl);
+        }
+
         QString oldUrl = QString::fromStdString(this->currentUrl);
         if (!isNavigating && !oldUrl.isEmpty() && newUrl != oldUrl && std::find(backwardStack.begin(), backwardStack.end(), oldUrl) == backwardStack.end()) {
             addToBackwardStack(oldUrl);

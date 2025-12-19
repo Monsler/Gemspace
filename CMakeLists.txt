@@ -16,9 +16,12 @@ set(SRC
     src/browser/Requester.cpp
     include/ui/Gembling.hpp
     src/ui/Gembling.cpp
+    include/PlasmaPercent.hpp
+    src/PlasmaPercent.cpp
 )
 
 find_package(ECM 1.0 REQUIRED NO_MODULE)
+find_package(OpenSSL REQUIRED)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ECM_MODULE_PATH})
 find_package(Qt6 REQUIRED COMPONENTS Widgets LinguistTools Multimedia DBus)
 
@@ -40,4 +43,4 @@ qt_add_translations(Gemspace
 )
 
 target_include_directories(Gemspace PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(Gemspace PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Multimedia Qt6::DBus)
+target_link_libraries(Gemspace PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Multimedia Qt6::DBus OpenSSL::SSL)

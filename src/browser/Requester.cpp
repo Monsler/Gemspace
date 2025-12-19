@@ -83,7 +83,7 @@ namespace Gemspace {
 
         connect(socket, &QSslSocket::readyRead, [this, socket, buffer]() {
             buffer->append(socket->readAll());
-            parentWindow->plasmaPercent->emitPercent(buffer->size() / 1024);
+            parentWindow->plasmaPercent->incrementPercent(buffer->size() / 1024);
         });
 
         connect(socket, &QSslSocket::connected, [socket]() {

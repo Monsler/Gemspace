@@ -9,8 +9,10 @@ namespace Gemspace
 
         public:
         void emitPercent(const int percent);
+        void incrementPercent(const int percent);
+        int progressPercent;
 
         private:
-        int progressPercent;
+
     };
 } // namespace Kalorite

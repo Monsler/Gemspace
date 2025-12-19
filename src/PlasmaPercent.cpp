@@ -28,4 +28,9 @@ namespace Gemspace
         QDBusConnection::sessionBus().send(message);
 #endif
     }
+
+    void PlasmaPercent::incrementPercent(const int percent) {
+        progressPercent += float(percent) / 100.0;
+        emitPercent(progressPercent);
+    }
 } // namespace Gemspace

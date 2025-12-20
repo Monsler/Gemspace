@@ -13,6 +13,8 @@
 #include <qssl.h>
 #include <qsslcertificate.h>
 #include <QSslKey>
+#include <QTabBar>
+#include <qtabwidget.h>
 
 namespace Gemspace {
     MainWindow::MainWindow(QWidget* parent)
@@ -31,8 +33,23 @@ namespace Gemspace {
         layout->setContentsMargins(0, 0, 0, 0);
         centralWidget->setLayout(layout);
 
+        tabLayout = new QHBoxLayout(centralWidget);
+        tabLayout->setContentsMargins(9, 9, 9, 0);
+        layout->addLayout(tabLayout);
+
+        tabBar = new QTabBar(centralWidget);
+        tabBar->setTabsClosable(true);
+        tabBar->setMovable(true);
+        tabLayout->addWidget(tabBar);
+
+        newTabButton = new QPushButton(centralWidget);
+        newTabButton->setIcon(QIcon::fromTheme("list-add"));
+        newTabButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        connect(newTabButton, &QPushButton::clicked, this, &MainWindow::addTabButtonClicked);
+        tabLayout->addWidget(newTabButton);
+
         searchPanel = new QHBoxLayout(centralWidget);
-        searchPanel->setContentsMargins(9, 9, 9, 3);
+        searchPanel->setContentsMargins(9, 0, 9, 3);
         layout->addLayout(searchPanel);
 
         searchInput = new QLineEdit(centralWidget);
@@ -73,10 +90,23 @@ namespace Gemspace {
         connect(forwardButton, &QPushButton::clicked, this, &MainWindow::onForwardClicked);
 
         searchInput->setText("gemspace://home");
+        tabBar->addTab(searchInput->text());
+        tabBar->setCurrentIndex(0);
+        currentTab = 0;
+
+        connect(tabBar, &QTabBar::currentChanged, this, &MainWindow::onTabChanged);
 
         show();
         onUrlEntered();
     }
+
+    void MainWindow::onTabChanged(int index) {
+        currentTab = index;
+        searchInput->clearFocus();
+        searchInput->setText(tabBar->tabText(index));
+        onRefreshClicked();
+    }
+
     void MainWindow::onBackClicked() {
         if (!backwardStack.empty()) {
 
@@ -90,6 +120,11 @@ namespace Gemspace {
             updateNavigationButtons();
             onUrlEntered();
         }
+    }
+
+    void MainWindow::addTabButtonClicked() {
+        tabBar->addTab("gemspace://home");
+        tabBar->setCurrentIndex(tabBar->count() - 1);
     }
 
     void MainWindow::onForwardClicked() {
@@ -215,6 +250,8 @@ namespace Gemspace {
             this->searchInput->clearFocus();
             this->searchInput->setText("gemini://kennedy.gemi.dev/search?" + newUrl);
         }
+
+        tabBar->setTabText(currentTab, this->searchInput->text());
 
         QString oldUrl = QString::fromStdString(this->currentUrl);
         if (!isNavigating && !oldUrl.isEmpty() && newUrl != oldUrl && std::find(backwardStack.begin(), backwardStack.end(), oldUrl) == backwardStack.end()) {

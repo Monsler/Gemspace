@@ -6,6 +6,7 @@
 #include <qmenu.h>
 #include <qpushbutton.h>
 #include <qstringview.h>
+#include <qtabwidget.h>
 #include <qwidget.h>
 #include <QLineEdit>
 #include <QPushButton>
@@ -35,8 +36,8 @@ namespace Gemspace {
         void onBackClicked();
         void onForwardClicked();
         void updateNavigationButtons();
-
-
+        void onTabChanged(int index);
+        void addTabButtonClicked();
 
     private:
         std::vector<QString> forwardStack;
@@ -44,6 +45,11 @@ namespace Gemspace {
 
         bool isNavigating;
 
+        QHBoxLayout* tabLayout;
+        QTabBar* tabBar;
+        QPushButton* newTabButton;
+
+        int currentTab;
 
         QVBoxLayout* layout;
         QWidget* centralWidget;
